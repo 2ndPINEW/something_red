@@ -16,6 +16,16 @@ static const char *TAG = "example";
 static uint8_t led_state_off = 0;
 CRGB *ws2812_buffer;
 
+int getLedIndex(int x, int y, int width) {
+    if (y % 2 == 0) {
+        // 偶数行の場合は左から右
+        return y * width + x;
+    } else {
+        // 奇数行の場合は右から左
+        return (y + 1) * width - 1 - x;
+    }
+}
+
 void blink_led(void) {
     for (int i = 0; i < LED_NUM; i++) {
         if (led_state_off) {
