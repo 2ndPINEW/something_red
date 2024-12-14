@@ -1,3 +1,9 @@
 [submodule "matrix/components/esp_ws28xx"]
 	path = matrix/components/esp_ws28xx
 	url = git@github.com:okhsunrog/esp_ws28xx.git
+[submodule "matrix/esp-idf-lib"]
+	path = matrix/esp-idf-lib
+	url = git@github.com:UncleRus/esp-idf-lib.git
+[submodule "matrix/matrix/esp-idf-lib"]
+	path = matrix/matrix/esp-idf-lib
+	url = git@github.com:UncleRus/esp-idf-lib.git
