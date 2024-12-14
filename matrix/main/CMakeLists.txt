@@ -1,4 +1,7 @@
-set(srcs "main.c")
+set(srcs "main.c"
+         "back_matrix_control.c"
+         "front_matrix_control.c"
+         "matrix_utils.c")
 
 set(include "."
             "include")
