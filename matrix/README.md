@@ -13,6 +13,11 @@ FreeRTOSでタスクが動作します。
 - `/main` プロジェクトルート
   - main.c がエントリポイントです
 
+# 開発準備
+- [esp-idf](https://github.com/espressif/esp-idf)
+- esp32c3を使ってます
+- 
+![alt text](assets/755a3b84-f4b8-41fe-8aec-e1054749151e.png)
 
 # Troubleshooting
 
