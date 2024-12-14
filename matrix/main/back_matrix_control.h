@@ -9,3 +9,4 @@
 void back_matrix_init();
 void back_matrix_set_pixel_color(int x, int y, CRGB color);
 void back_matrix_blink();
+void back_matrix_light_sequentially();

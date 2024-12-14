@@ -3,8 +3,8 @@
 #include "esp_ws28xx.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include <stdio.h>
 #include "matrix_utils.h"
+#include <stdio.h>
 
 #define FRONT_LED_GPIO 3
 
@@ -31,6 +31,14 @@ void front_matrix_set_pixel_color(int x, int y, CRGB color) {
     ws2812_buffer_front[index] = color;
 }
 
+void blank_front_matrix() {
+    for (int y = 0; y < FRONT_HEIGHT; y++) {
+        for (int x = 0; x < FRONT_WIDTH; x++) {
+            front_matrix_set_pixel_color(x, y, (CRGB){.r = 0, .g = 0, .b = 0});
+        }
+    }
+}
+
 void front_matrix_blink() {
     for (int y = 0; y < FRONT_HEIGHT; y++) {
         for (int x = 0; x < FRONT_WIDTH; x++) {
@@ -44,4 +52,24 @@ void front_matrix_blink() {
         }
     }
     front_led_state_off = !front_led_state_off;
+}
+
+static int led_counter = 0; // 現在光らせているLEDのインデックス
+void front_matrix_light_sequentially() {
+    // 全てのLEDを消灯
+    blank_front_matrix();
+
+    // led_counterがtotal_pixelsを超えた場合には0に戻す（ループ）
+    if (led_counter >= FRONT_LEDS) {
+        led_counter = 0; // 最初に戻る
+    }
+
+    int x = led_counter % FRONT_WIDTH;
+    int y = led_counter / FRONT_WIDTH;
+
+    // 現在のインデックスに対応するLEDを点灯
+    front_matrix_set_pixel_color(x, y, (CRGB){.r = 50, .g = 0, .b = 0});
+
+    // 次回呼び出し時は次のLEDへ
+    led_counter++;
 }
