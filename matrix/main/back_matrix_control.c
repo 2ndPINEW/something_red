@@ -16,6 +16,13 @@
 static CRGB *ws2812_buffer_left;
 static CRGB *ws2812_buffer_right;
 
+void clear_back_matrix() {
+    for (int i = 0; i < BACK_HALF_LEDS; i++) {
+        ws2812_buffer_left[i] = (CRGB){.r = 0, .g = 0, .b = 0};
+        ws2812_buffer_right[i] = (CRGB){.r = 0, .g = 0, .b = 0};
+    }
+}
+
 void back_matrix_init() {
     // 左パネル初期化
     ESP_ERROR_CHECK_WITHOUT_ABORT(ws28xx_init(
@@ -25,12 +32,7 @@ void back_matrix_init() {
     ESP_ERROR_CHECK_WITHOUT_ABORT(ws28xx_init(
         BACK_RIGHT_LED_GPIO, WS2812B, BACK_HALF_LEDS, &ws2812_buffer_right));
 
-    // 初期状態クリア
-    for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
-        for (int x = 0; x < BACK_TOTAL_WIDTH; x++) {
-            back_matrix_set_pixel_color(x, y, (CRGB){.r = 0, .g = 0, .b = 0});
-        }
-    }
+    clear_back_matrix();
 }
 
 void back_matrix_set_pixel_color(int x, int y, CRGB color) {
@@ -56,6 +58,7 @@ void blank_back_matrix() {
     }
 }
 
+// 点滅
 static uint8_t back_led_state_off = 0;
 void back_matrix_blink() {
     for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
@@ -72,22 +75,19 @@ void back_matrix_blink() {
     back_led_state_off = !back_led_state_off;
 }
 
-static int led_counter = 0; // 現在光らせているLEDのインデックス
+// 順番に光らせる
+static int led_counter = 0;
 void back_matrix_light_sequentially() {
-    // 全てのLEDを消灯
-    blank_back_matrix();
+    clear_back_matrix();
 
-    // led_counterがtotal_pixelsを超えた場合には0に戻す（ループ）
     if (led_counter >= BACK_TOTAL_LEDS) {
-        led_counter = 0; // 最初に戻る
+        led_counter = 0;
     }
 
     int x = led_counter % BACK_TOTAL_WIDTH;
     int y = led_counter / BACK_TOTAL_WIDTH;
 
-    // 現在のインデックスに対応するLEDを点灯
     back_matrix_set_pixel_color(x, y, (CRGB){.r = 50, .g = 0, .b = 0});
 
-    // 次回呼び出し時は次のLEDへ
     led_counter++;
 }
