@@ -2,8 +2,8 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "matrix_utils.h"
 #include "led_strip.h"
+#include "matrix_utils.h"
 #include <stdio.h>
 
 #define BACK_LED_GPIO 9
@@ -18,24 +18,21 @@
 
 static const char *TAG = "BACK_MATRIX_CONTROL";
 
-static led_strip_t back_strip = {
-    .type = LED_STRIP_WS2812,
-    .is_rgbw = false,
-    .length = BACK_TOTAL_LEDS,
-    .gpio = BACK_LED_GPIO,
-    .channel = RMT_CHANNEL_0,
-    .brightness = 50
-};
+static led_strip_t back_strip = {.type = LED_STRIP_WS2812,
+                                 .is_rgbw = false,
+                                 .length = BACK_TOTAL_LEDS,
+                                 .gpio = BACK_LED_GPIO,
+                                 .channel = RMT_CHANNEL_0,
+                                 .brightness = 50};
 
 static uint8_t back_led_state_off = 0;
 static int led_counter = 0;
 
-void flush_back() {
-    led_strip_flush(&back_strip);
-}
+void flush_back() { led_strip_flush(&back_strip); }
 
 void clear_back_matrix() {
-    led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, (rgb_t){.r=0,.g=0,.b=0});
+    led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS,
+                   (rgb_t){.r = 0, .g = 0, .b = 0});
 }
 
 void back_matrix_init() {
@@ -47,13 +44,13 @@ static int get_panel_offset(int x, int y) {
     // 新しいパネル順と回転
     // 左上(0), 左下(1), 右下(2), 右上(3)
     // オフセット: 0, 256, 512, 768
-    if (x < BACK_TOTAL_WIDTH/2 && y < BACK_TOTAL_HEIGHT/2) {
+    if (x < BACK_TOTAL_WIDTH / 2 && y < BACK_TOTAL_HEIGHT / 2) {
         // 左上パネル
         return 0;
-    } else if (x < BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) {
+    } else if (x < BACK_TOTAL_WIDTH / 2 && y >= BACK_TOTAL_HEIGHT / 2) {
         // 左下パネル
         return PANEL_SIZE;
-    } else if (x >= BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) {
+    } else if (x >= BACK_TOTAL_WIDTH / 2 && y >= BACK_TOTAL_HEIGHT / 2) {
         // 右下パネル(180度回転)
         return PANEL_SIZE * 2;
     } else {
@@ -65,8 +62,8 @@ static int get_panel_offset(int x, int y) {
 // パネルが180度回転かどうかを判定する関数
 static bool is_panel_rotated_180(int x, int y) {
     // 右下パネル, 右上パネルが180度回転
-    if ((x >= BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) ||  // 右下
-        (x >= BACK_TOTAL_WIDTH/2 && y < BACK_TOTAL_HEIGHT/2)) {   // 右上
+    if ((x >= BACK_TOTAL_WIDTH / 2 && y >= BACK_TOTAL_HEIGHT / 2) || // 右下
+        (x >= BACK_TOTAL_WIDTH / 2 && y < BACK_TOTAL_HEIGHT / 2)) {  // 右上
         return true;
     }
     return false;
@@ -81,8 +78,8 @@ void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
     int offset = get_panel_offset(x, y);
 
     // パネル内のローカル座標計算
-    int local_x = (x < BACK_TOTAL_WIDTH/2) ? x : (x - PANEL_WIDTH);
-    int local_y = (y < BACK_TOTAL_HEIGHT/2) ? y : (y - PANEL_HEIGHT);
+    int local_x = (x < BACK_TOTAL_WIDTH / 2) ? x : (x - PANEL_WIDTH);
+    int local_y = (y < BACK_TOTAL_HEIGHT / 2) ? y : (y - PANEL_HEIGHT);
 
     // 回転対応
     if (is_panel_rotated_180(x, y)) {
@@ -101,24 +98,26 @@ void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
 void blank_back_matrix() {
     for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
         for (int x = 0; x < BACK_TOTAL_WIDTH; x++) {
-            back_matrix_set_pixel_color(x, y, (rgb_t){.r=0, .g=0, .b=0});
+            back_matrix_set_pixel_color(x, y, (rgb_t){.r = 0, .g = 0, .b = 0});
         }
     }
 }
 
 void back_matrix_blink() {
-    rgb_t on_color = {.r=50, .g=0, .b=0};
-    rgb_t off_color = {.r=0, .g=0, .b=0};
+    rgb_t on_color = {.r = 50, .g = 0, .b = 0};
+    rgb_t off_color = {.r = 0, .g = 0, .b = 0};
 
     rgb_t color = back_led_state_off ? off_color : on_color;
     led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, color);
+    flush_back();
 
     back_led_state_off = !back_led_state_off;
 }
 
 void back_matrix_light_sequentially() {
     // 全消灯
-    led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, (rgb_t){.r=0,.g=0,.b=0});
+    led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS,
+                   (rgb_t){.r = 0, .g = 0, .b = 0});
 
     if (led_counter >= BACK_TOTAL_LEDS) {
         led_counter = 0;
@@ -127,7 +126,9 @@ void back_matrix_light_sequentially() {
     int x = led_counter % BACK_TOTAL_WIDTH;
     int y = led_counter / BACK_TOTAL_WIDTH;
 
-    back_matrix_set_pixel_color(x, y, (rgb_t){.r=50, .g=0, .b=0});
+    back_matrix_set_pixel_color(x, y, (rgb_t){.r = 50, .g = 0, .b = 0});
+    flush_back();
+    flush_back();
 
     led_counter++;
 }
