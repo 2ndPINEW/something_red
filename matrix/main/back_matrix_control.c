@@ -16,6 +16,8 @@
 #define BACK_TOTAL_HEIGHT 32
 #define BACK_TOTAL_LEDS (BACK_TOTAL_WIDTH * BACK_TOTAL_HEIGHT)
 
+static const char *TAG = "BACK_MATRIX_CONTROL";
+
 static led_strip_t back_strip = {
     .type = LED_STRIP_WS2812,
     .is_rgbw = false,
@@ -41,26 +43,37 @@ void back_matrix_init() {
     clear_back_matrix();
 }
 
-// パネルオフセットを計算する関数
-// x,y全体座標から、どのパネルか判別してoffsetを返す
 static int get_panel_offset(int x, int y) {
-    // 左上パネル
+    // 新しいパネル順と回転
+    // 左上(0), 左下(1), 右下(2), 右上(3)
+    // オフセット: 0, 256, 512, 768
     if (x < BACK_TOTAL_WIDTH/2 && y < BACK_TOTAL_HEIGHT/2) {
+        // 左上パネル
         return 0;
-    }
-    // 左下パネル
-    if (x < BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) {
+    } else if (x < BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) {
+        // 左下パネル
         return PANEL_SIZE;
-    }
-    // 右上パネル
-    if (x >= BACK_TOTAL_WIDTH/2 && y < BACK_TOTAL_HEIGHT/2) {
+    } else if (x >= BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) {
+        // 右下パネル(180度回転)
         return PANEL_SIZE * 2;
+    } else {
+        // 右上パネル(180度回転)
+        return PANEL_SIZE * 3;
     }
-    // 右下パネル
-    return PANEL_SIZE * 3;
+}
+
+// パネルが180度回転かどうかを判定する関数
+static bool is_panel_rotated_180(int x, int y) {
+    // 右下パネル, 右上パネルが180度回転
+    if ((x >= BACK_TOTAL_WIDTH/2 && y >= BACK_TOTAL_HEIGHT/2) ||  // 右下
+        (x >= BACK_TOTAL_WIDTH/2 && y < BACK_TOTAL_HEIGHT/2)) {   // 右上
+        return true;
+    }
+    return false;
 }
 
 void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
+    ESP_LOGI(TAG, "Setting pixel color at x=%d, y=%d", x, y);
     if (x < 0 || x >= BACK_TOTAL_WIDTH || y < 0 || y >= BACK_TOTAL_HEIGHT) {
         return;
     }
@@ -68,23 +81,20 @@ void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
     int offset = get_panel_offset(x, y);
 
     // パネル内のローカル座標計算
-    int local_x, local_y;
-    if (x < BACK_TOTAL_WIDTH/2) {
-        local_x = x;
-    } else {
-        local_x = x - PANEL_WIDTH; // 16引く
+    int local_x = (x < BACK_TOTAL_WIDTH/2) ? x : (x - PANEL_WIDTH);
+    int local_y = (y < BACK_TOTAL_HEIGHT/2) ? y : (y - PANEL_HEIGHT);
+
+    // 回転対応
+    if (is_panel_rotated_180(x, y)) {
+        // 180度回転
+        local_x = (PANEL_WIDTH - 1) - local_x;
+        local_y = (PANEL_HEIGHT - 1) - local_y;
     }
 
-    if (y < BACK_TOTAL_HEIGHT/2) {
-        local_y = y;
-    } else {
-        local_y = y - PANEL_HEIGHT; // 16引く
-    }
-
-    // パネル内でのインデックス取得(16x16の範囲で)
     int panel_index = get_matrix_panel_led_index(local_x, local_y, PANEL_WIDTH);
 
     int final_index = offset + panel_index;
+    ESP_LOGI(TAG, "Setting pixel color at final_index=%d", final_index);
     led_strip_set_pixel(&back_strip, final_index, color);
 }
 
@@ -107,6 +117,7 @@ void back_matrix_blink() {
 }
 
 void back_matrix_light_sequentially() {
+    // 全消灯
     led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, (rgb_t){.r=0,.g=0,.b=0});
 
     if (led_counter >= BACK_TOTAL_LEDS) {

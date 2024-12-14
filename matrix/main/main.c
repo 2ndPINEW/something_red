@@ -16,15 +16,14 @@ void app_main(void) {
 
     while (1) {
         ESP_LOGI(TAG, "Blinking back matrix...");
-        // back_matrix_blink();
         back_matrix_light_sequentially();
+        flush_back();
         front_matrix_light_sequentially();
         tape_light_sequentially(TAPE1);
         tape_light_sequentially(TAPE2);
         tape_light_sequentially(TAPE3);
         tape_light_sequentially(TAPE4);
         flush_front();
-        flush_back();
-        // vTaskDelay(100 / portTICK_PERIOD_MS);
+        // vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
