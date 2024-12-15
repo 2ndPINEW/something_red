@@ -2,10 +2,11 @@
 #include <stdint.h>
 
 typedef enum {
-    LIGHT_MODE_RAINBOW_SCROLL = 0,
+    LIGHT_MODE_INIT = 0,
     LIGHT_MODE_OFF,
+    LIGHT_MODE_RAINBOW_SCROLL,
     LIGHT_MODE_BLINK_RED,
-    LIGHT_MODE_INIT
+    LIGHT_MODE_TEXT
 } light_mode_t;
 
 void light_controller_init();

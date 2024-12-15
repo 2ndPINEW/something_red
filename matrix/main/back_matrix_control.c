@@ -30,6 +30,11 @@ static int led_counter = 0;
 
 void flush_back() { led_strip_flush(&back_strip); }
 
+void flush_back_and_wait() {
+    flush_back();
+    vTaskDelay(30 / portTICK_PERIOD_MS);
+}
+
 void clear_back_matrix() {
     led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS,
                    (rgb_t){.r = 0, .g = 0, .b = 0});

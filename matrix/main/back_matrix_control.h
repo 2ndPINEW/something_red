@@ -15,5 +15,6 @@ void back_matrix_light_sequentially();
 void blank_back_matrix();
 void clear_back_matrix();
 void flush_back();
+void flush_back_and_wait();
 void back_matrix_draw_from_palette(const rgb_t *palette, int palette_count,
                                    const uint8_t canvas[BACK_TOTAL_HEIGHT][BACK_TOTAL_WIDTH]);

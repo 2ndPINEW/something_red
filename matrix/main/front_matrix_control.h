@@ -26,6 +26,7 @@ void front_matrix_blink();
 void front_matrix_light_sequentially();
 void clear_front_matrix();
 void flush_front();
+void flush_front_and_wait();
 void front_matrix_draw_from_palette(const rgb_t *palette, int palette_count,
                                     const uint8_t canvas[FRONT_HEIGHT][FRONT_WIDTH]);
 

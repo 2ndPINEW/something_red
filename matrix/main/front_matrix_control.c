@@ -24,6 +24,11 @@ static int tape_counters[TAPE_COUNT] = {0};
 
 void flush_front() { led_strip_flush(&front_strip); }
 
+void flush_front_and_wait() {
+    flush_front();
+    vTaskDelay(15 / portTICK_PERIOD_MS);
+}
+
 void clear_front_matrix() {
     led_strip_fill(&front_strip, 0, TOTAL_LEDS,
                    (rgb_t){.r = 0, .g = 0, .b = 0});
