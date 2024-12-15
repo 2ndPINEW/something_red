@@ -6,7 +6,8 @@ typedef enum {
     LIGHT_MODE_OFF,
     LIGHT_MODE_RAINBOW_SCROLL,
     LIGHT_MODE_BLINK_RED,
-    LIGHT_MODE_PACHINKO
+    LIGHT_MODE_PACHINKO,
+    LIGHT_MODE_FIRE,
 } light_mode_t;
 
 void light_controller_init();

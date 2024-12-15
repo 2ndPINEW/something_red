@@ -5,6 +5,7 @@
 #include "front_matrix_control.h"
 #include "led_strip.h"
 #include "light_mode_blink_red.h"
+#include "light_mode_fire.h"
 #include "light_mode_init.h"
 #include "light_mode_off.h"
 #include "light_mode_pachinko.h"
@@ -23,6 +24,7 @@ void reset_all_light_mode() {
     reset_light_mode_blink_red();
     reset_light_mode_off();
     reset_light_mode_pachinko();
+    reset_light_mode_fire();
 }
 
 void light_controller_set_mode(light_mode_t mode) {
@@ -56,6 +58,9 @@ static void update_display() {
         break;
     case LIGHT_MODE_PACHINKO:
         light_mode_pachinko();
+        break;
+    case LIGHT_MODE_FIRE:
+        light_mode_fire();
         break;
     }
 }
