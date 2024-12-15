@@ -38,6 +38,8 @@ void clear_back_matrix() {
 void back_matrix_init() {
     ESP_ERROR_CHECK(led_strip_init(&back_strip));
     clear_back_matrix();
+    flush_back();
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 
 static int get_panel_offset(int x, int y) {
@@ -99,6 +101,10 @@ void blank_back_matrix() {
             back_matrix_set_pixel_color(x, y, (rgb_t){.r = 0, .g = 0, .b = 0});
         }
     }
+}
+
+void back_matrix_fill_color(rgb_t color) {
+    led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, color);
 }
 
 void back_matrix_blink() {

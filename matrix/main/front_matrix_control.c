@@ -32,6 +32,8 @@ void clear_front_matrix() {
 void front_matrix_init() {
     ESP_ERROR_CHECK(led_strip_init(&front_strip));
     clear_front_matrix();
+    flush_front();
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 
 void front_matrix_set_pixel_color(int x, int y, rgb_t color) {
@@ -42,13 +44,16 @@ void front_matrix_set_pixel_color(int x, int y, rgb_t color) {
     led_strip_set_pixel(&front_strip, index, color);
 }
 
+void front_matrix_fill_color(rgb_t color) {
+    led_strip_fill(&front_strip, 0, FRONT_LEDS, color);
+}
+
 void front_matrix_blink() {
     rgb_t off_color = {.r = 0, .g = 0, .b = 0};
     rgb_t on_color = {.r = 255, .g = 0, .b = 0};
 
     rgb_t color = front_led_state_off ? off_color : on_color;
     led_strip_fill(&front_strip, 0, FRONT_LEDS, color);
-    flush_front();
 
     front_led_state_off = !front_led_state_off;
 }
@@ -66,7 +71,6 @@ void front_matrix_light_sequentially() {
     int y = led_counter / FRONT_WIDTH;
 
     front_matrix_set_pixel_color(x, y, (rgb_t){.r = 50, .g = 50, .b = 0});
-    flush_front();
 
     led_counter++;
 }
@@ -186,5 +190,4 @@ void tape_draw_all_from_palette(
             tape_set_pixel_color(seg, i, color);
         }
     }
-    flush_front();
 }

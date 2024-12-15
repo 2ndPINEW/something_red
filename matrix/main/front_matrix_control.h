@@ -21,6 +21,7 @@
 
 void front_matrix_init();
 void front_matrix_set_pixel_color(int x, int y, rgb_t color);
+void front_matrix_fill_color(rgb_t color);
 void front_matrix_blink();
 void front_matrix_light_sequentially();
 void clear_front_matrix();
