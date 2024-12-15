@@ -6,6 +6,8 @@ set(srcs "main.c"
          "light_controller.c"
          "light_mode_rainbow_scroll.c"
          "light_mode_off.c"
+         "light_mode_blink_red.c"
+         "light_mode_init.c"
          )
 
 set(include "."
