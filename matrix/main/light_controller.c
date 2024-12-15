@@ -5,9 +5,10 @@
 #include "front_matrix_control.h"
 #include "led_strip.h"
 #include "light_mode_blink_red.h"
-#include "light_mode_off.h"
-#include "light_mode_rainbow_scroll.h"
 #include "light_mode_init.h"
+#include "light_mode_off.h"
+#include "light_mode_pachinko.h"
+#include "light_mode_rainbow_scroll.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <stdio.h>
@@ -21,6 +22,7 @@ void reset_all_light_mode() {
     reset_light_mode_init();
     reset_light_mode_blink_red();
     reset_light_mode_off();
+    reset_light_mode_pachinko();
 }
 
 void light_controller_set_mode(light_mode_t mode) {
@@ -52,7 +54,8 @@ static void update_display() {
     case LIGHT_MODE_BLINK_RED:
         light_mode_blink_red();
         break;
-    case LIGHT_MODE_TEXT:
+    case LIGHT_MODE_PACHINKO:
+        light_mode_pachinko();
         break;
     }
 }
