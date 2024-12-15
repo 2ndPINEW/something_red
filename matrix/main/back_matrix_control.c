@@ -23,7 +23,7 @@ static led_strip_t back_strip = {.type = LED_STRIP_WS2812,
                                  .length = BACK_TOTAL_LEDS,
                                  .gpio = BACK_LED_GPIO,
                                  .channel = RMT_CHANNEL_0,
-                                 .brightness = 30};
+                                 .brightness = 10};
 
 static uint8_t back_led_state_off = 0;
 static int led_counter = 0;
@@ -107,7 +107,6 @@ void back_matrix_blink() {
 
     rgb_t color = back_led_state_off ? off_color : on_color;
     led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS, color);
-    flush_back();
 
     back_led_state_off = !back_led_state_off;
 }
@@ -169,8 +168,6 @@ void back_matrix_light_sequentially() {
     p5(2, 4);
     p5(3, 4);
 
-    flush_back();
-
     led_counter++;
 }
 
@@ -189,5 +186,4 @@ void back_matrix_draw_from_palette(
             back_matrix_set_pixel_color(x, y, color);
         }
     }
-    flush_back();
 }

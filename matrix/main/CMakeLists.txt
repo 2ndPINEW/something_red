@@ -2,7 +2,8 @@ set(srcs "main.c"
          "back_matrix_control.c"
          "front_matrix_control.c"
          "matrix_utils.c"
-         "color_palette.c")
+         "color_palette.c"
+         "light_controller.c")
 
 set(include "."
             "include")
