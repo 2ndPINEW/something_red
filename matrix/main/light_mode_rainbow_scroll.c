@@ -48,10 +48,10 @@ void light_mode_rainbow_scroll() {
     for (int i = 0; i < TAPE_LEDS; i++) {
         tape_canvas[i] = (i + scroll_offset) % PALETTE_SIZE;
     }
-    tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE1);
-    tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE2);
-    tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE3);
-    tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE4);
+    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE1);
+    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE2);
+    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE3);
+    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE4);
     flush_front_and_wait();
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
