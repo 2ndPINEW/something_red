@@ -25,6 +25,8 @@ void front_matrix_blink();
 void front_matrix_light_sequentially();
 void clear_front_matrix();
 void flush_front();
+void front_matrix_draw_from_palette(const rgb_t *palette, int palette_count,
+                                    const uint8_t canvas[FRONT_HEIGHT][FRONT_WIDTH]);
 
 // テープライトセグメント識別子
 typedef enum {
@@ -37,4 +39,7 @@ typedef enum {
 void tape_set_pixel_color(tape_segment_t tape, int i, rgb_t color);
 void tape_fill(tape_segment_t tape, rgb_t color);
 void tape_light_sequentially(tape_segment_t tape);
-void tape_clear(tape_segment_t tape);
+void tape_draw_from_palette(const rgb_t *palette, int palette_count,
+                            const uint8_t tape_canvas[TAPE_LEDS], tape_segment_t tape);
+void tape_draw_all_from_palette(const rgb_t *palette, int palette_count,
+                                const uint8_t tape_canvases[TAPE_COUNT][TAPE_LEDS]);

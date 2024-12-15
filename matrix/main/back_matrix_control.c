@@ -6,7 +6,7 @@
 #include "matrix_utils.h"
 #include <stdio.h>
 
-#define BACK_LED_GPIO 9
+#define BACK_LED_GPIO 20
 
 #define PANEL_WIDTH 16
 #define PANEL_HEIGHT 16
@@ -23,7 +23,7 @@ static led_strip_t back_strip = {.type = LED_STRIP_WS2812,
                                  .length = BACK_TOTAL_LEDS,
                                  .gpio = BACK_LED_GPIO,
                                  .channel = RMT_CHANNEL_0,
-                                 .brightness = 50};
+                                 .brightness = 30};
 
 static uint8_t back_led_state_off = 0;
 static int led_counter = 0;
@@ -70,7 +70,6 @@ static bool is_panel_rotated_180(int x, int y) {
 }
 
 void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
-    ESP_LOGI(TAG, "Setting pixel color at x=%d, y=%d", x, y);
     if (x < 0 || x >= BACK_TOTAL_WIDTH || y < 0 || y >= BACK_TOTAL_HEIGHT) {
         return;
     }
@@ -91,7 +90,6 @@ void back_matrix_set_pixel_color(int x, int y, rgb_t color) {
     int panel_index = get_matrix_panel_led_index(local_x, local_y, PANEL_WIDTH);
 
     int final_index = offset + panel_index;
-    ESP_LOGI(TAG, "Setting pixel color at final_index=%d", final_index);
     led_strip_set_pixel(&back_strip, final_index, color);
 }
 
@@ -114,6 +112,24 @@ void back_matrix_blink() {
     back_led_state_off = !back_led_state_off;
 }
 
+#define p(x_start, y)                                                          \
+    back_matrix_set_pixel_color(                                               \
+        (led_counter + x_start) % BACK_TOTAL_WIDTH, y,                         \
+        get_color((led_counter + x_start) % BACK_TOTAL_WIDTH, y));
+#define p5(x_start, y)                                                         \
+    back_matrix_set_pixel_color(                                               \
+        (led_counter + x_start + 5) % BACK_TOTAL_WIDTH, y,                     \
+        get_color((led_counter + x_start + 5) % BACK_TOTAL_WIDTH, y));
+
+rgb_t get_color(int x, int y) {
+    if (BACK_TOTAL_WIDTH / 3 >= x) {
+        return (rgb_t){.r = 50, .g = 0, .b = 0};
+    } else if (BACK_TOTAL_WIDTH / 3 * 2 >= x) {
+        return (rgb_t){.r = 0, .g = 50, .b = 0};
+    }
+    return (rgb_t){.r = 0, .g = 0, .b = 50};
+}
+
 void back_matrix_light_sequentially() {
     // 全消灯
     led_strip_fill(&back_strip, 0, BACK_TOTAL_LEDS,
@@ -123,12 +139,55 @@ void back_matrix_light_sequentially() {
         led_counter = 0;
     }
 
-    int x = led_counter % BACK_TOTAL_WIDTH;
-    int y = led_counter / BACK_TOTAL_WIDTH;
+    p(0, 0);
+    p(1, 0);
+    p(2, 0);
+    p(3, 0);
+    p(0, 1);
+    p(3, 2);
+    p(2, 2);
+    p(1, 2);
+    p(0, 2);
+    p(3, 3);
+    p(0, 4);
+    p(1, 4);
+    p(2, 4);
+    p(3, 4);
 
-    back_matrix_set_pixel_color(x, y, (rgb_t){.r = 50, .g = 0, .b = 0});
-    flush_back();
+    p5(0, 0);
+    p5(1, 0);
+    p5(2, 0);
+    p5(3, 0);
+    p5(0, 1);
+    p5(3, 2);
+    p5(2, 2);
+    p5(1, 2);
+    p5(0, 2);
+    p5(3, 3);
+    p5(0, 4);
+    p5(1, 4);
+    p5(2, 4);
+    p5(3, 4);
+
     flush_back();
 
     led_counter++;
+}
+
+// palette: rgb_t配列（パレット）
+// palette_count: パレット色数
+// canvas: 32x32のパレットインデックス配列（0～palette_count-1の値）
+void back_matrix_draw_from_palette(
+    const rgb_t *palette, int palette_count,
+    const uint8_t canvas[BACK_TOTAL_HEIGHT][BACK_TOTAL_WIDTH]) {
+    for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
+        for (int x = 0; x < BACK_TOTAL_WIDTH; x++) {
+            uint8_t index = canvas[y][x];
+            rgb_t color = (index < palette_count)
+                              ? palette[index]
+                              : (rgb_t){.r = 0, .g = 0, .b = 0};
+            back_matrix_set_pixel_color(x, y, color);
+        }
+    }
+    flush_back();
 }
