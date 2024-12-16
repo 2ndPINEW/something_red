@@ -12,9 +12,7 @@
 
 static uint8_t blink_state = 0;
 
-void reset_light_mode_blink_red() {
-    blink_state = 0;
-}
+void reset_light_mode_blink_red() { blink_state = 0; }
 
 void light_mode_blink_red() {
     // blink_stateでon/off切替
@@ -27,6 +25,11 @@ void light_mode_blink_red() {
         flush_back_and_wait();
 
         front_matrix_fill_color(red);
+        tape_fill(TAPE1, red);
+        tape_fill(TAPE2, red);
+        tape_fill(TAPE3, red);
+        tape_fill(TAPE4, red);
+
         flush_front_and_wait();
     } else {
         // 全部黒
@@ -36,6 +39,10 @@ void light_mode_blink_red() {
         vTaskDelay(30 / portTICK_PERIOD_MS);
 
         front_matrix_fill_color(off);
+        tape_fill(TAPE1, off);
+        tape_fill(TAPE2, off);
+        tape_fill(TAPE3, off);
+        tape_fill(TAPE4, off);
         flush_front_and_wait();
         vTaskDelay(30 / portTICK_PERIOD_MS);
     }

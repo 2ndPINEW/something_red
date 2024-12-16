@@ -21,7 +21,7 @@ static int frame_counter = 0;
 // テープ関連
 static int tape_run_count = 0; 
 static bool tape_on = false;  
-static int tape_color_range = 256/6; // 42程度
+static int tape_color_range = 128/6; // 42程度
 static int tape_color_start = 0;
 
 // フロント侵食関連
@@ -59,13 +59,13 @@ static void run_tape_once() {
     } else {
         int scroll_offset = frame_counter % tape_color_range; 
         for (int i=0;i<TAPE_LEDS;i++){
-            int idx = (tape_color_start + (i+scroll_offset))%256;
+            int idx = (tape_color_start + (i+scroll_offset))%128;
             tape_canvas[i]=idx;
         }
-        tape_draw_from_palette(pal, 256, tape_canvas,TAPE1);
-        tape_draw_from_palette(pal, 256, tape_canvas,TAPE2);
-        tape_draw_from_palette(pal, 256, tape_canvas,TAPE3);
-        tape_draw_from_palette(pal, 256, tape_canvas,TAPE4);
+        tape_draw_from_palette(pal, 128, tape_canvas,TAPE1);
+        tape_draw_from_palette(pal, 128, tape_canvas,TAPE2);
+        tape_draw_from_palette(pal, 128, tape_canvas,TAPE3);
+        tape_draw_from_palette(pal, 128, tape_canvas,TAPE4);
         flush_front();
         frame_counter++;
 
@@ -73,10 +73,10 @@ static void run_tape_once() {
         if (frame_counter>42) {
             // 消灯
             for (int i=0;i<TAPE_LEDS;i++) tape_canvas[i]=0;
-            tape_draw_from_palette(pal,256,tape_canvas,TAPE1);
-            tape_draw_from_palette(pal,256,tape_canvas,TAPE2);
-            tape_draw_from_palette(pal,256,tape_canvas,TAPE3);
-            tape_draw_from_palette(pal,256,tape_canvas,TAPE4);
+            tape_draw_from_palette(pal,128,tape_canvas,TAPE1);
+            tape_draw_from_palette(pal,128,tape_canvas,TAPE2);
+            tape_draw_from_palette(pal,128,tape_canvas,TAPE3);
+            tape_draw_from_palette(pal,128,tape_canvas,TAPE4);
             flush_front();
 
             tape_on=false;
@@ -92,14 +92,14 @@ static void run_tape_once() {
                     int dist = (FRONT_WIDTH-1 - x)+(FRONT_HEIGHT-1 - y);
                     if(dist < infiltration_dist) {
                         // 虹色適用: (x*3 + y*5 + front_invasion_level*10)で分散
-                        int idx = (x*3 + y*5 + front_invasion_level*10) % 256;
+                        int idx = (x*3 + y*5 + front_invasion_level*10) % 128;
                         front_canvas[y][x] = idx;
                     } else {
                         front_canvas[y][x] = RAINBOW_PALETTE_SIZE + 1;
                     }
                 }
             }
-            front_matrix_draw_from_palette(pal,256,front_canvas);
+            front_matrix_draw_from_palette(pal,128,front_canvas);
             flush_front();
         }
     }
@@ -128,7 +128,7 @@ static void phase_tape_stream_func() {
 static void phase_final_func() {
     for(int y=0;y<FRONT_HEIGHT;y++){
         for(int x=0;x<FRONT_WIDTH;x++){
-            int idx=(x+y+frame_counter)%256;
+            int idx=(x+y+frame_counter)%128;
             if(!final_done_blink) {
                 // 点滅中(20フレームで1回点滅)
                 if(!final_blink_state) {
@@ -143,7 +143,7 @@ static void phase_final_func() {
         }
     }
 
-    front_matrix_draw_from_palette(pal,256,front_canvas);
+    front_matrix_draw_from_palette(pal,128,front_canvas);
     flush_front();
 
     frame_counter++;
