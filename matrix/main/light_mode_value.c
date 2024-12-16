@@ -295,7 +295,19 @@ void light_mode_value() {
             uint8_t color_index;
             if (pixel_on) {
                 // 文字ピクセル
-                color_index = x + y + x + y;
+                // color_index = x + y + x + y;
+                color_index = 0;
+
+                if (y < 10) {
+                    color_index = 0;
+                } else if (y < 20) {
+                    color_index = 42;
+                } else {
+                    color_index = 84;
+                }
+
+                // 42
+                // 84
             } else {
                 // 範囲外を指定すると黒になる
                 color_index = RAINBOW_PALETTE_SIZE + 1;
