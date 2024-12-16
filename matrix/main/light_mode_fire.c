@@ -202,6 +202,29 @@ void update_front_fire() {
     // front更新
     update_heat(heat_front, FIRE_WIDTH, FIRE_HEIGHT);
     draw_heat_to_canvas(heat_front, front_canvas, FIRE_WIDTH, FIRE_HEIGHT);
+
+    // === ここから角取り（マスク）処理 ===
+    int cx = FRONT_WIDTH / 2;
+    int cy = FRONT_HEIGHT / 2;
+    int r = (FRONT_WIDTH < FRONT_HEIGHT) ? FRONT_WIDTH/2 : FRONT_HEIGHT/2; 
+    // rはパネルの半分程度の長さ(円形マスク半径)
+    // もう少し小さくして明確に四隅をカットしたいなら rを小さめにしてもよい
+    // 例えば r = (FRONT_WIDTH < FRONT_HEIGHT) ? (FRONT_WIDTH/2 - 2) : (FRONT_HEIGHT/2 - 2);
+
+    for (int y = 0; y < FIRE_HEIGHT; y++) {
+        for (int x = 0; x < FIRE_WIDTH; x++) {
+            int dx = x - cx;
+            int dy = y - cy;
+            int dist2 = dx*dx + dy*dy;
+            int r2 = r*r;
+            // 円の外側なら黒にする
+            if (dist2 > r2) {
+                front_canvas[y][x] = RAINBOW_PALETTE_SIZE; // 黒インデックス
+            }
+        }
+    }
+    // === 角取り（マスク）処理ここまで ===
+
     front_matrix_draw_from_palette(fire_pal, RAINBOW_PALETTE_SIZE, front_canvas);
     flush_front_and_wait();
 }
