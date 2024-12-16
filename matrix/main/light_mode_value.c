@@ -8,6 +8,7 @@
 #include <freertos/task.h>
 #include <stdio.h>
 #include <string.h>
+#include "light_mode_fire.h"
 
 // パネルサイズ
 #define BACK_W (32)
@@ -275,6 +276,7 @@ static void render_text() {
 }
 
 void reset_light_mode_value() {
+    reset_light_mode_fire();
     color_palette_init();
     pal = color_palette_get();
     scroll_offset = 0; // 必要に応じて初期値調整可
@@ -307,5 +309,7 @@ void light_mode_value() {
     back_matrix_draw_from_palette(pal, RAINBOW_PALETTE_SIZE, back_canvas);
     flush_back_and_wait();
 
-    vTaskDelay(20 / portTICK_PERIOD_MS);
+    update_front_fire();
+
+    vTaskDelay(15 / portTICK_PERIOD_MS);
 }

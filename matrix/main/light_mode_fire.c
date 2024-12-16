@@ -198,21 +198,27 @@ static void draw_heat_to_canvas_back(uint8_t (*heat)[BACK_FIRE_WIDTH],
     }
 }
 
-void light_mode_fire() {
-    frame_counter++;
-
+void update_front_fire() {
     // front更新
     update_heat(heat_front, FIRE_WIDTH, FIRE_HEIGHT);
     draw_heat_to_canvas(heat_front, front_canvas, FIRE_WIDTH, FIRE_HEIGHT);
     front_matrix_draw_from_palette(fire_pal, RAINBOW_PALETTE_SIZE, front_canvas);
     flush_front_and_wait();
+}
 
+void update_back_fire() {
     // back更新
     update_heat_back(heat_back, BACK_FIRE_WIDTH, BACK_FIRE_HEIGHT);
     draw_heat_to_canvas_back(heat_back, back_canvas, BACK_FIRE_WIDTH,
                              BACK_FIRE_HEIGHT);
     back_matrix_draw_from_palette(fire_pal, RAINBOW_PALETTE_SIZE, back_canvas);
     flush_back_and_wait();
+}
+
+void light_mode_fire() {
+    frame_counter++;
+    update_front_fire();
+    update_back_fire();
 
     vTaskDelay(pdMS_TO_TICKS(15));
 }
