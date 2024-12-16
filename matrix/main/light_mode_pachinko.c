@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PALETTE_SIZE 128
 #define PHASE_TAPE_STREAM 0
 #define PHASE_INJECT 1
 #define PHASE_STARS 2

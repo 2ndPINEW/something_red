@@ -23,7 +23,7 @@ static led_strip_t back_strip = {.type = LED_STRIP_WS2812,
                                  .length = BACK_TOTAL_LEDS,
                                  .gpio = BACK_LED_GPIO,
                                  .channel = RMT_CHANNEL_0,
-                                 .brightness = 10};
+                                 .brightness = 25};
 
 static uint8_t back_led_state_off = 0;
 static int led_counter = 0;
