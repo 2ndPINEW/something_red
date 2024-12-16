@@ -13,7 +13,7 @@ static led_strip_t front_strip = {.type = LED_STRIP_WS2812,
                                   .length = TOTAL_LEDS,
                                   .gpio = FRONT_LED_GPIO,
                                   .channel = RMT_CHANNEL_1,
-                                  .brightness = 30};
+                                  .brightness = 50};
 
 // フロント用
 static uint8_t front_led_state_off = 0;

@@ -10,6 +10,7 @@ set(srcs "main.c"
          "light_mode_init.c"
          "light_mode_pachinko.c"
           "light_mode_fire.c"
+          "light_mode_value.c"
          )
 
 set(include "."

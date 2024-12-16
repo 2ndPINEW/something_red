@@ -95,7 +95,7 @@ static void run_tape_once() {
                         int idx = (x*3 + y*5 + front_invasion_level*10) % 256;
                         front_canvas[y][x] = idx;
                     } else {
-                        front_canvas[y][x] = PALETTE_SIZE + 1;
+                        front_canvas[y][x] = RAINBOW_PALETTE_SIZE + 1;
                     }
                 }
             }
@@ -132,7 +132,7 @@ static void phase_final_func() {
             if(!final_done_blink) {
                 // 点滅中(20フレームで1回点滅)
                 if(!final_blink_state) {
-                    front_canvas[y][x]=PALETTE_SIZE + 1;
+                    front_canvas[y][x]=RAINBOW_PALETTE_SIZE + 1;
                 } else {
                     front_canvas[y][x]=idx;
                 }

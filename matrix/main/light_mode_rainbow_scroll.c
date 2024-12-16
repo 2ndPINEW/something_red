@@ -25,33 +25,29 @@ void reset_light_mode_rainbow_scroll() {
 
 void light_mode_rainbow_scroll() {
     // スクロールオフセットを増やして虹表示
-    scroll_offset = (scroll_offset + 1) % PALETTE_SIZE;
+    scroll_offset = (scroll_offset + 1) % RAINBOW_PALETTE_SIZE;
 
     // Back
     for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
         for (int x = 0; x < BACK_TOTAL_WIDTH; x++) {
-            back_canvas[y][x] = (x + scroll_offset) % PALETTE_SIZE;
+            back_canvas[y][x] = (x + scroll_offset) % RAINBOW_PALETTE_SIZE;
         }
     }
-    back_matrix_draw_from_palette(pal, PALETTE_SIZE, back_canvas);
+    back_matrix_draw_from_palette(pal, RAINBOW_PALETTE_SIZE, back_canvas);
     flush_back_and_wait();
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
 
     for (int y = 0; y < FRONT_HEIGHT; y++) {
         for (int x = 0; x < FRONT_WIDTH; x++) {
-            front_canvas[y][x] = (x + scroll_offset) % PALETTE_SIZE;
+            front_canvas[y][x] = (x + scroll_offset) % RAINBOW_PALETTE_SIZE;
         }
     }
-    front_matrix_draw_from_palette(pal, PALETTE_SIZE, front_canvas);
+    front_matrix_draw_from_palette(pal, RAINBOW_PALETTE_SIZE, front_canvas);
 
     for (int i = 0; i < TAPE_LEDS; i++) {
-        tape_canvas[i] = (i + scroll_offset) % PALETTE_SIZE;
+        tape_canvas[i] = (i + scroll_offset) % RAINBOW_PALETTE_SIZE;
     }
-    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE1);
-    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE2);
-    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE3);
-    // tape_draw_from_palette(pal, PALETTE_SIZE, tape_canvas, TAPE4);
     flush_front_and_wait();
 
     vTaskDelay(10 / portTICK_PERIOD_MS);

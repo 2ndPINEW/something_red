@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "led_strip.h"
 
-#define PALETTE_SIZE 256
+#define RAINBOW_PALETTE_SIZE 128
 
 void color_palette_init(void);
 

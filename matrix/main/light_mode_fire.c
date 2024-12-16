@@ -72,10 +72,10 @@ static rgb_t hsv_to_rgb(float h, float s, float v) {
 // 炎用パレット生成
 // 下側は黒～赤～オレンジ～黄～白のグラデーション
 // 0 = 黒(冷), 中間=赤～オレンジ, 最後=白(熱)
-static rgb_t fire_palette[PALETTE_SIZE];
+static rgb_t fire_palette[RAINBOW_PALETTE_SIZE];
 static void generate_fire_palette() {
-    for (int i = 0; i < PALETTE_SIZE; i++) {
-        float v = (float)i / (PALETTE_SIZE - 1); // 0.0～1.0
+    for (int i = 0; i < RAINBOW_PALETTE_SIZE; i++) {
+        float v = (float)i / (RAINBOW_PALETTE_SIZE - 1); // 0.0～1.0
         // 炎っぽくするには、H=0(赤)付近～60度(黄)へ、V=
         // max(v,0.5)で結構明るめ、S=1
         // Hを0→60度へ線形変化させるとオレンジ～黄色が多くなるため、
@@ -177,9 +177,9 @@ static void draw_heat_to_canvas(uint8_t (*heat)[FIRE_WIDTH],
                                 int height) {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            int idx = (heat[y][x] * (PALETTE_SIZE - 1)) / 160;
-            if (idx > PALETTE_SIZE - 1)
-                idx = PALETTE_SIZE - 1;
+            int idx = (heat[y][x] * (RAINBOW_PALETTE_SIZE - 1)) / 160;
+            if (idx > RAINBOW_PALETTE_SIZE - 1)
+                idx = RAINBOW_PALETTE_SIZE - 1;
             canvas[y][x] = (uint8_t)idx;
         }
     }
@@ -190,9 +190,9 @@ static void draw_heat_to_canvas_back(uint8_t (*heat)[BACK_FIRE_WIDTH],
                                      int width, int height) {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            int idx = (heat[y][x] * (PALETTE_SIZE - 1)) / 160;
-            if (idx > PALETTE_SIZE - 1)
-                idx = PALETTE_SIZE - 1;
+            int idx = (heat[y][x] * (RAINBOW_PALETTE_SIZE - 1)) / 160;
+            if (idx > RAINBOW_PALETTE_SIZE - 1)
+                idx = RAINBOW_PALETTE_SIZE - 1;
             canvas[y][x] = (uint8_t)idx;
         }
     }
@@ -204,14 +204,14 @@ void light_mode_fire() {
     // front更新
     update_heat(heat_front, FIRE_WIDTH, FIRE_HEIGHT);
     draw_heat_to_canvas(heat_front, front_canvas, FIRE_WIDTH, FIRE_HEIGHT);
-    front_matrix_draw_from_palette(fire_pal, PALETTE_SIZE, front_canvas);
+    front_matrix_draw_from_palette(fire_pal, RAINBOW_PALETTE_SIZE, front_canvas);
     flush_front_and_wait();
 
     // back更新
     update_heat_back(heat_back, BACK_FIRE_WIDTH, BACK_FIRE_HEIGHT);
     draw_heat_to_canvas_back(heat_back, back_canvas, BACK_FIRE_WIDTH,
                              BACK_FIRE_HEIGHT);
-    back_matrix_draw_from_palette(fire_pal, PALETTE_SIZE, back_canvas);
+    back_matrix_draw_from_palette(fire_pal, RAINBOW_PALETTE_SIZE, back_canvas);
     flush_back_and_wait();
 
     vTaskDelay(pdMS_TO_TICKS(15));

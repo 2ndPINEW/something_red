@@ -8,12 +8,12 @@ static const char *TAG = "MAIN";
 void app_main(void) {
     light_controller_init();
 
-    light_controller_set_mode(LIGHT_MODE_PACHINKO);
+    // light_controller_set_mode(LIGHT_MODE_PACHINKO);
 
     // while(1) {
     // vTaskDelay(pdMS_TO_TICKS(10000));
     // ESP_LOGI(TAG, "Switching mode to BLINK");
-    // light_controller_set_mode(LIGHT_MODE_BLINK_RED);
+    light_controller_set_mode(LIGHT_MODE_VALUE);
 
     // vTaskDelay(pdMS_TO_TICKS(10000));
     // ESP_LOGI(TAG, "Switching mode to OFF");

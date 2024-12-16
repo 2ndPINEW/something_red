@@ -23,7 +23,7 @@ static led_strip_t back_strip = {.type = LED_STRIP_WS2812,
                                  .length = BACK_TOTAL_LEDS,
                                  .gpio = BACK_LED_GPIO,
                                  .channel = RMT_CHANNEL_0,
-                                 .brightness = 25};
+                                 .brightness = 5};
 
 static uint8_t back_led_state_off = 0;
 static int led_counter = 0;
@@ -191,10 +191,15 @@ void back_matrix_draw_from_palette(
     for (int y = 0; y < BACK_TOTAL_HEIGHT; y++) {
         for (int x = 0; x < BACK_TOTAL_WIDTH; x++) {
             uint8_t index = canvas[y][x];
-            rgb_t color = (index < palette_count)
-                              ? palette[index]
-                              : (rgb_t){.r = 0, .g = 0, .b = 0};
-            back_matrix_set_pixel_color(x, y, color);
+            if (index < palette_count) {
+                back_matrix_set_pixel_color(x, y, palette[index]);
+            } else {
+                back_matrix_set_pixel_color(x, y,
+                                            (rgb_t){.r = 0, .g = 0, .b = 0});
+            }
+            if (x == 31 && y == 31) {
+                ESP_LOGI(TAG, "x: %d, y: %d, index: %d", x, y, index);
+            }
         }
     }
 }

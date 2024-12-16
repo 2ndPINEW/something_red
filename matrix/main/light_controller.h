@@ -8,6 +8,7 @@ typedef enum {
     LIGHT_MODE_BLINK_RED,
     LIGHT_MODE_PACHINKO,
     LIGHT_MODE_FIRE,
+    LIGHT_MODE_VALUE,
 } light_mode_t;
 
 void light_controller_init();
