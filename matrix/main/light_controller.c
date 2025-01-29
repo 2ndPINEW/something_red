@@ -11,6 +11,8 @@
 #include "light_mode_pachinko.h"
 #include "light_mode_rainbow_scroll.h"
 #include "light_mode_value.h"
+#include "light_mode_party.h"
+#include "light_mode_pop.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <stdio.h>
@@ -27,6 +29,8 @@ void reset_all_light_mode() {
     reset_light_mode_pachinko();
     reset_light_mode_fire();
     reset_light_mode_value();
+    reset_light_mode_party();
+    reset_light_mode_pop();
 }
 
 void light_controller_set_mode(light_mode_t mode) {
@@ -66,6 +70,12 @@ static void update_display() {
         break;
     case LIGHT_MODE_VALUE:
         light_mode_value();
+        break;
+    case LIGHT_MODE_PARTY:
+        light_mode_party();
+        break;
+    case LIGHT_MODE_POP:
+        light_mode_pop();
         break;
     }
 }
