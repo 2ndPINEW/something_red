@@ -1,17 +1,12 @@
 #pragma once
 #include <stdint.h>
 
-typedef enum {
-    LIGHT_MODE_INIT = 0,
-    LIGHT_MODE_OFF,
-    LIGHT_MODE_RAINBOW_SCROLL,
-    LIGHT_MODE_BLINK_RED,
-    LIGHT_MODE_PACHINKO,
-    LIGHT_MODE_FIRE,
-    LIGHT_MODE_VALUE,
-    LIGHT_MODE_PARTY,
-    LIGHT_MODE_POP,
-} light_mode_t;
+// アニメーション関連の定数
+#define MAX_PALETTE_COLORS 256
+#define MAX_ANIMATION_FRAMES 64
 
+// アニメーションデータを受信する関数
+void animation_receive_data(const char *data);
+
+// 初期化関数
 void light_controller_init();
-void light_controller_set_mode(light_mode_t mode);

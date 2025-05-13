@@ -6,14 +6,13 @@
 static const char *TAG = "MAIN";
 
 void app_main(void) {
+    // 初期化のみ行う
     light_controller_init();
-
+    
+    ESP_LOGI(TAG, "System initialized and ready for animation data");
+    
+    // メインループ（必要に応じてシリアル通信の処理などを追加）
     while (1) {
-        ESP_LOGI(TAG, "Switching mode to BLINK");
-        light_controller_set_mode(LIGHT_MODE_POP);
-        vTaskDelay(pdMS_TO_TICKS(30 * 60 * 1000));
-
-        light_controller_set_mode(LIGHT_MODE_PARTY);
-        vTaskDelay(pdMS_TO_TICKS(3 * 60 * 1000));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
