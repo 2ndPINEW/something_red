@@ -6,9 +6,8 @@
 #include "matrix_utils.h"
 #include <stdio.h>
 
-// GPIO番号（1-6）
-// GPIO 1は20、GPIO 2は21、...という想定
-#define LED_GPIO_BASE 20
+// ESP32-S3で使用可能なGPIOピン（ブートや特殊機能に使われないもの）
+#define LED_GPIO_BASE 4 // +3
 
 static const char *TAG = "LED_MATRIX_CONTROL";
 
@@ -22,8 +21,8 @@ static uint8_t led_state_off = 0;
 // 未使用の変数を削除
 
 // (x, y)座標から適切なGPIOインデックス、ストリップインデックス、LEDインデックスを計算
-// 返り値: GPIOインデックス（0-5）
-// strip_index: そのGPIO内のストリップインデックス（0-5）
+// 返り値: GPIOインデックス（0-3）
+// strip_index: そのGPIO内のストリップインデックス（0-8）
 // led_index: そのストリップ内のLEDインデックス（0-107）
 static int get_gpio_strip_led_index(int x, int y, int *strip_index, int *led_index) {
     // y座標から、全体のストリップインデックス（0-35）を計算
@@ -72,8 +71,8 @@ void led_matrix_init() {
             .type = LED_STRIP_WS2812,
             .is_rgbw = false,
             .length = LEDS_PER_STRIP * LED_STRIPS_PER_GPIO,
-            .gpio = LED_GPIO_BASE + i,  // GPIO 20, 21, 22, ...
-            .channel = i,  // RMT_CHANNEL_0, 1, 2, ...
+            .gpio = LED_GPIO_BASE + i,  // GPIO 8, 9, 10, 11
+            .channel = i,  // RMT_CHANNEL_0, 1, 2, 3
             .brightness = DEFAULT_BRIGHTNESS
         };
         
@@ -111,18 +110,6 @@ void led_matrix_fill_color(rgb_t color) {
     for (int i = 0; i < LED_GPIO_COUNT; i++) {
         led_strip_fill(&led_strips[i], 0, LEDS_PER_STRIP * LED_STRIPS_PER_GPIO, color);
     }
-}
-
-void led_matrix_blink() {
-    rgb_t on_color = {.r = 50, .g = 0, .b = 0};
-    rgb_t off_color = {.r = 0, .g = 0, .b = 0};
-
-    rgb_t color = led_state_off ? off_color : on_color;
-    for (int i = 0; i < LED_GPIO_COUNT; i++) {
-        led_strip_fill(&led_strips[i], 0, LEDS_PER_STRIP * LED_STRIPS_PER_GPIO, color);
-    }
-
-    led_state_off = !led_state_off;
 }
 
 // palette: rgb_t配列（パレット）
