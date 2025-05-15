@@ -19,6 +19,22 @@ FreeRTOSでタスクが動作します。
 - 
 ![alt text](assets/755a3b84-f4b8-41fe-8aec-e1054749151e.png)
 
+# データ形式
+SSEのデータストリームをパクった形式にする
+
+カラーパレットの最大数は 256
+
+```markdown
+各データはHEXカラーコードをカンマ区切りで送る
+
+palette: #ffffff, #000000
+flame: 時間, 0x0の色index, 0x1の色index ...... 
+flame: 時間, 0x0の色index, 0x1の色index ...... 
+flame: 時間, 0x0の色index, 0x1の色index ...... 
+flame: 時間, 0x0の色index, 0x1の色index ...... 
+END
+```
+
 # Troubleshooting
 
 * Program upload failure

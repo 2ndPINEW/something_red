@@ -4,6 +4,15 @@
     "matrix_utils.h": "c",
     "freertos.h": "c",
     "stdio.h": "c",
-    "ctype.h": "c"
+    "ctype.h": "c",
+    "led_strip.h": "c",
+    "light_mode_init.h": "c",
+    "light_controller.h": "c",
+    "color_palette.h": "c",
+    "light_mode_off.h": "c",
+    "front_matrix_control.h": "c",
+    "task.h": "c",
+    "light_mode_rainbow_scroll.h": "c",
+    "led_matrix_control.h": "c"
   }
 }
