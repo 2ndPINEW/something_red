@@ -307,7 +307,6 @@ static void light_task(void *arg) {
         } else {
             // アニメーションがない場合は初期化パターンを表示
             show_init_pattern();
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
 }
