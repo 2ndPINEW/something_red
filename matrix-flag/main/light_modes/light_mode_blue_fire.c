@@ -4,6 +4,7 @@
 #include "freertos/semphr.h"
 #include "led_strip.h"
 #include "../matrix_utils.h"
+#include <string.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <math.h>
@@ -75,6 +76,10 @@ static void generate_blue_fire_palette() {
         float val = 0.5f + 0.5f * v; // 下は暗め(0.5)、上は明るい(1.0)
         blue_fire_palette[i] = hsv_to_rgb(hue, s, val);
     }
+    
+    // パレットの最後の色を純粋な白色に設定（テキスト表示用）
+    blue_fire_palette[RAINBOW_PALETTE_SIZE - 1] = (rgb_t){.r = 255, .g = 255, .b = 255};
+    
     blue_fire_pal = blue_fire_palette;
 }
 
@@ -136,6 +141,22 @@ static void draw_heat_to_canvas() {
     }
 }
 
+// テキストを描画する関数
+static void draw_text_overlay() {
+    // 「BLUE GIANTS」というテキストを中央に表示
+    const char* text = "BLUE GIANTS";
+    
+    // 1.5倍サイズのテキストを使用するため、縦方向の位置を調整
+    int y_pos = (FIRE_HEIGHT - get_font_5x7()->height * 3 / 2) / 2 - 2;
+    
+    // 純粋な白色を使用するために、パレットの最大値を使用
+    // パレットの最大値は純粋な白色(255,255,255)に設定済み
+    uint8_t white_color_index = RAINBOW_PALETTE_SIZE - 1;
+    
+    // 1.5倍サイズのテキストを中央に描画
+    draw_centered_text_to_canvas_1_5x(canvas, text, y_pos, white_color_index, get_font_5x7());
+}
+
 void light_mode_blue_fire() {
     frame_counter++;
     
@@ -144,6 +165,9 @@ void light_mode_blue_fire() {
     
     // キャンバスに描画
     draw_heat_to_canvas();
+    
+    // テキストをオーバーレイ
+    draw_text_overlay();
     
     // LEDマトリックスに描画
     led_matrix_draw_from_palette(blue_fire_pal, RAINBOW_PALETTE_SIZE, canvas);
