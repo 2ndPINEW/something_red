@@ -1,6 +1,9 @@
 {
   "files.associations": {
     "*.ejs": "html",
-    "matrix_utils.h": "c"
+    "matrix_utils.h": "c",
+    "freertos.h": "c",
+    "stdio.h": "c",
+    "ctype.h": "c"
   }
 }

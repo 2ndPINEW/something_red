@@ -223,23 +223,32 @@ void animation_receive_data(const char *data) {
 
 // 初期化パターンを表示する関数
 static void show_init_pattern() {
-    // 全部消灯
-    rgb_t off = (rgb_t){.r = 0, .g = 0, .b = 0};
-    led_matrix_fill_color(off);
+    rgb_t off_color = (rgb_t){.r = 0, .g = 0, .b = 0};
+    rgb_t on_color = (rgb_t){.r = 0, .g = 0, .b = 254};
+    
+    // 最初に全部消灯
+    led_matrix_fill_color(off_color);
     flush_led_and_wait();
     
-    // 中央に赤い点を表示
-    rgb_t red = (rgb_t){.r = 255, .g = 0, .b = 0};
-    for (int y = LED_TOTAL_HEIGHT/2 - 2; y <= LED_TOTAL_HEIGHT/2 + 2; y++) {
-        for (int x = LED_TOTAL_WIDTH/2 - 2; x <= LED_TOTAL_WIDTH/2 + 2; x++) {
-            led_matrix_set_pixel_color(x, y, red);
-        }
+    // 点滅を5回繰り返す
+    for (int i = 0; i < 5; i++) {
+        // 全ての LED を白く点灯
+        led_matrix_fill_color(on_color);
+        flush_led_and_wait();
+        
+        // 少し待機
+        vTaskDelay(300 / portTICK_PERIOD_MS);
+        
+        // 全ての LED を消灯
+        led_matrix_fill_color(off_color);
+        flush_led_and_wait();
+        
+        // 少し待機
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
-    flush_led_and_wait();
-    vTaskDelay(500 / portTICK_PERIOD_MS);
     
-    // 全部消灯
-    led_matrix_fill_color(off);
+    // 最後に全部消灯（念のため）
+    led_matrix_fill_color(off_color);
     flush_led_and_wait();
 }
 

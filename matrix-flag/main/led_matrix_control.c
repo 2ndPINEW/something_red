@@ -7,12 +7,13 @@
 #include <stdio.h>
 
 // ESP32-S3で使用可能なGPIOピン（ブートや特殊機能に使われないもの）
-#define LED_GPIO_BASE 4 // +3
+// 各GPIOインデックスに対応するピン番号を定義
+static const int LED_GPIO_PINS[LED_GPIO_COUNT] = {4, 5, 15, 16};
 
 static const char *TAG = "LED_MATRIX_CONTROL";
 
 // デフォルトの明るさ
-#define DEFAULT_BRIGHTNESS 20
+#define DEFAULT_BRIGHTNESS 80
 
 // 各GPIOに対応するLEDストリップの配列
 static led_strip_t led_strips[LED_GPIO_COUNT];
@@ -32,13 +33,25 @@ static int get_gpio_strip_led_index(int x, int y, int *strip_index, int *led_ind
     int gpio_index = global_strip_index / LED_STRIPS_PER_GPIO;
     *strip_index = global_strip_index % LED_STRIPS_PER_GPIO;
     
-    // 偶数番目のストリップ（0,2,4,...）は左から右、奇数番目のストリップ（1,3,5,...）は右から左
-    if (*strip_index % 2 == 0) {
-        // 左から右（通常順）
-        *led_index = x;
+    // GPIO 1と3は右上から配置されているため、計算方法を変更
+    if (gpio_index == 1 || gpio_index == 3) {
+        // GPIO 1と3の場合
+        if (*strip_index % 2 == 0) {
+            // 偶数番目のストリップは右から左（逆順）
+            *led_index = LED_TOTAL_WIDTH - 1 - x;
+        } else {
+            // 奇数番目のストリップは左から右（通常順）
+            *led_index = x;
+        }
     } else {
-        // 右から左（逆順）
-        *led_index = LED_TOTAL_WIDTH - 1 - x;
+        // GPIO 0と2の場合（元の計算方法）
+        if (*strip_index % 2 == 0) {
+            // 偶数番目のストリップは左から右（通常順）
+            *led_index = x;
+        } else {
+            // 奇数番目のストリップは右から左（逆順）
+            *led_index = LED_TOTAL_WIDTH - 1 - x;
+        }
     }
     
     return gpio_index;
@@ -71,7 +84,7 @@ void led_matrix_init() {
             .type = LED_STRIP_WS2812,
             .is_rgbw = false,
             .length = LEDS_PER_STRIP * LED_STRIPS_PER_GPIO,
-            .gpio = LED_GPIO_BASE + i,  // GPIO 8, 9, 10, 11
+            .gpio = LED_GPIO_PINS[i],  // 定義したGPIOピン番号を使用
             .channel = i,  // RMT_CHANNEL_0, 1, 2, 3
             .brightness = DEFAULT_BRIGHTNESS
         };
