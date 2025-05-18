@@ -13,7 +13,7 @@ static const int LED_GPIO_PINS[LED_GPIO_COUNT] = {4, 5, 15, 16};
 static const char *TAG = "LED_MATRIX_CONTROL";
 
 // デフォルトの明るさ
-#define DEFAULT_BRIGHTNESS 5
+#define DEFAULT_BRIGHTNESS 18
 
 // 各GPIOに対応するLEDストリップの配列
 static led_strip_t led_strips[LED_GPIO_COUNT];

@@ -11,7 +11,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "light controller initted");
 
     light_controller_set_mode(LIGHT_MODE_INIT);
-    vTaskDelay(pdMS_TO_TICKS(3 * 1000));
+    vTaskDelay(pdMS_TO_TICKS(1 * 1000));
 
     light_controller_set_mode(LIGHT_MODE_BLUE_FIRE);
 }

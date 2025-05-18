@@ -12,7 +12,7 @@ int get_matrix_panel_led_index(int x, int y, int width) {
     }
 }
 
-// 5x7ピクセルフォントデータ（アルファベット大文字のみ）
+// 5x7ピクセルフォントデータ（アルファベット大文字と数字）
 // 各文字は5x7ピクセルで、1バイトの各ビットが1行を表す
 static const uint8_t font_5x7_data[] = {
     // A
@@ -67,6 +67,26 @@ static const uint8_t font_5x7_data[] = {
     0x07, 0x08, 0x70, 0x08, 0x07,
     // Z
     0x61, 0x51, 0x49, 0x45, 0x43,
+    // 0
+    0x3E, 0x51, 0x49, 0x45, 0x3E,
+    // 1
+    0x00, 0x42, 0x7F, 0x40, 0x00,
+    // 2
+    0x42, 0x61, 0x51, 0x49, 0x46,
+    // 3
+    0x21, 0x41, 0x45, 0x4B, 0x31,
+    // 4
+    0x18, 0x14, 0x12, 0x7F, 0x10,
+    // 5
+    0x27, 0x45, 0x45, 0x45, 0x39,
+    // 6
+    0x3C, 0x4A, 0x49, 0x49, 0x30,
+    // 7
+    0x01, 0x71, 0x09, 0x05, 0x03,
+    // 8
+    0x36, 0x49, 0x49, 0x49, 0x36,
+    // 9
+    0x06, 0x49, 0x49, 0x29, 0x1E,
     // スペース
     0x00, 0x00, 0x00, 0x00, 0x00
 };
@@ -89,25 +109,35 @@ static void draw_char_to_canvas(uint8_t canvas[][LED_TOTAL_WIDTH],
                                int x, int y, 
                                uint8_t color_index, 
                                const font_t *font) {
-    // アルファベット大文字のみサポート
+    // アルファベット大文字と数字をサポート
+    int char_index = -1;
+    
     if (c >= 'A' && c <= 'Z') {
-        int char_index = c - 'A';
-        const uint8_t *char_data = &font->data[char_index * font->width];
-        
-        for (int cy = 0; cy < font->height; cy++) {
-            for (int cx = 0; cx < font->width; cx++) {
-                // 各ビットをチェック（上から下へ）
-                if ((char_data[cx] >> cy) & 0x01) {
-                    // キャンバスの範囲内かチェック
-                    if (x + cx >= 0 && x + cx < LED_TOTAL_WIDTH && 
-                        y + cy >= 0 && y + cy < LED_TOTAL_HEIGHT) {
-                        canvas[y + cy][x + cx] = color_index;
-                    }
+        char_index = c - 'A';
+    } else if (c >= '0' && c <= '9') {
+        // 数字は、アルファベットの後に配置されている
+        char_index = 26 + (c - '0'); // 26文字のアルファベットの後
+    } else if (c == ' ') {
+        // スペースは何も描画しない
+        return;
+    } else {
+        // サポートされていない文字
+        return;
+    }
+    
+    const uint8_t *char_data = &font->data[char_index * font->width];
+    
+    for (int cy = 0; cy < font->height; cy++) {
+        for (int cx = 0; cx < font->width; cx++) {
+            // 各ビットをチェック（上から下へ）
+            if ((char_data[cx] >> cy) & 0x01) {
+                // キャンバスの範囲内かチェック
+                if (x + cx >= 0 && x + cx < LED_TOTAL_WIDTH && 
+                    y + cy >= 0 && y + cy < LED_TOTAL_HEIGHT) {
+                    canvas[y + cy][x + cx] = color_index;
                 }
             }
         }
-    } else if (c == ' ') {
-        // スペースは何も描画しない
     }
 }
 
@@ -131,35 +161,45 @@ static void draw_char_to_canvas_1_5x(uint8_t canvas[][LED_TOTAL_WIDTH],
                                     int x, int y, 
                                     uint8_t color_index, 
                                     const font_t *font) {
-    // アルファベット大文字のみサポート
+    // アルファベット大文字と数字をサポート
+    int char_index = -1;
+    
     if (c >= 'A' && c <= 'Z') {
-        int char_index = c - 'A';
-        const uint8_t *char_data = &font->data[char_index * font->width];
-        
-        for (int cy = 0; cy < font->height; cy++) {
-            for (int cx = 0; cx < font->width; cx++) {
-                // 各ビットをチェック（上から下へ）
-                if ((char_data[cx] >> cy) & 0x01) {
-                    // 1.5倍サイズで描画（3x3のパターンを2x2のグリッドに配置）
-                    // これにより文字がつぶれにくくなる
-                    for (int dy = 0; dy < 2; dy++) {
-                        for (int dx = 0; dx < 2; dx++) {
-                            // 1.5倍のスケーリング（整数演算で近似）
-                            int px = x + (cx * 3) / 2 + dx;
-                            int py = y + (cy * 3) / 2 + dy;
-                            
-                            // キャンバスの範囲内かチェック
-                            if (px >= 0 && px < LED_TOTAL_WIDTH && 
-                                py >= 0 && py < LED_TOTAL_HEIGHT) {
-                                canvas[py][px] = color_index;
-                            }
+        char_index = c - 'A';
+    } else if (c >= '0' && c <= '9') {
+        // 数字は、アルファベットの後に配置されている
+        char_index = 26 + (c - '0'); // 26文字のアルファベットの後
+    } else if (c == ' ') {
+        // スペースは何も描画しない
+        return;
+    } else {
+        // サポートされていない文字
+        return;
+    }
+    
+    const uint8_t *char_data = &font->data[char_index * font->width];
+    
+    for (int cy = 0; cy < font->height; cy++) {
+        for (int cx = 0; cx < font->width; cx++) {
+            // 各ビットをチェック（上から下へ）
+            if ((char_data[cx] >> cy) & 0x01) {
+                // 1.5倍サイズで描画（3x3のパターンを2x2のグリッドに配置）
+                // これにより文字がつぶれにくくなる
+                for (int dy = 0; dy < 2; dy++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        // 1.5倍のスケーリング（整数演算で近似）
+                        int px = x + (cx * 3) / 2 + dx;
+                        int py = y + (cy * 3) / 2 + dy;
+                        
+                        // キャンバスの範囲内かチェック
+                        if (px >= 0 && px < LED_TOTAL_WIDTH && 
+                            py >= 0 && py < LED_TOTAL_HEIGHT) {
+                            canvas[py][px] = color_index;
                         }
                     }
                 }
             }
         }
-    } else if (c == ' ') {
-        // スペースは何も描画しない
     }
 }
 
@@ -169,30 +209,40 @@ static void draw_char_to_canvas_2x(uint8_t canvas[][LED_TOTAL_WIDTH],
                                   int x, int y, 
                                   uint8_t color_index, 
                                   const font_t *font) {
-    // アルファベット大文字のみサポート
+    // アルファベット大文字と数字をサポート
+    int char_index = -1;
+    
     if (c >= 'A' && c <= 'Z') {
-        int char_index = c - 'A';
-        const uint8_t *char_data = &font->data[char_index * font->width];
-        
-        for (int cy = 0; cy < font->height; cy++) {
-            for (int cx = 0; cx < font->width; cx++) {
-                // 各ビットをチェック（上から下へ）
-                if ((char_data[cx] >> cy) & 0x01) {
-                    // 2x2のブロックとして描画
-                    for (int dy = 0; dy < 2; dy++) {
-                        for (int dx = 0; dx < 2; dx++) {
-                            // キャンバスの範囲内かチェック
-                            if (x + cx*2 + dx >= 0 && x + cx*2 + dx < LED_TOTAL_WIDTH && 
-                                y + cy*2 + dy >= 0 && y + cy*2 + dy < LED_TOTAL_HEIGHT) {
-                                canvas[y + cy*2 + dy][x + cx*2 + dx] = color_index;
-                            }
+        char_index = c - 'A';
+    } else if (c >= '0' && c <= '9') {
+        // 数字は、アルファベットの後に配置されている
+        char_index = 26 + (c - '0'); // 26文字のアルファベットの後
+    } else if (c == ' ') {
+        // スペースは何も描画しない
+        return;
+    } else {
+        // サポートされていない文字
+        return;
+    }
+    
+    const uint8_t *char_data = &font->data[char_index * font->width];
+    
+    for (int cy = 0; cy < font->height; cy++) {
+        for (int cx = 0; cx < font->width; cx++) {
+            // 各ビットをチェック（上から下へ）
+            if ((char_data[cx] >> cy) & 0x01) {
+                // 2x2のブロックとして描画
+                for (int dy = 0; dy < 2; dy++) {
+                    for (int dx = 0; dx < 2; dx++) {
+                        // キャンバスの範囲内かチェック
+                        if (x + cx*2 + dx >= 0 && x + cx*2 + dx < LED_TOTAL_WIDTH && 
+                            y + cy*2 + dy >= 0 && y + cy*2 + dy < LED_TOTAL_HEIGHT) {
+                            canvas[y + cy*2 + dy][x + cx*2 + dx] = color_index;
                         }
                     }
                 }
             }
         }
-    } else if (c == ' ') {
-        // スペースは何も描画しない
     }
 }
 

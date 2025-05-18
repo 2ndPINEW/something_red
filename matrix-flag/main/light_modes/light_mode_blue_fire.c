@@ -13,6 +13,8 @@
 
 #define FIRE_WIDTH LED_TOTAL_WIDTH
 #define FIRE_HEIGHT LED_TOTAL_HEIGHT
+#define TEXT_SWITCH_FRAMES 200
+#define SCROLL_ANIMATION_FRAMES 20
 
 static const rgb_t *blue_fire_pal = NULL;
 
@@ -21,6 +23,36 @@ static uint8_t canvas[FIRE_HEIGHT][FIRE_WIDTH];
 static uint8_t heat[FIRE_HEIGHT][FIRE_WIDTH];
 
 static int frame_counter = 0;
+static int animation_counter = 0;
+static bool is_animating = false;
+static bool completed_one_cycle = false; // 1周したかどうかのフラグ
+
+#define TEXT_OPTIONS_LENGTH 20
+
+// テキスト切り替え用
+static const char* text_options[TEXT_OPTIONS_LENGTH] = {
+    "BLUE GIANTS",
+    "55 GOGO",
+    "9 MAYU",
+    "38 SAYA",
+    "8 EITO",
+    "14 TENMA",
+    "62 MUTSUMI",
+    "88 SARA",
+    "24 SAKI",
+    "73 KODAMA",
+    "28 KAJIYA",
+    "17 SHU",
+    "81 SHOKO",
+    "91 AYATAKA",
+    "78 TOMOYA",
+    "21 HORISO",
+    "31 MAI",
+    "22 HISHO",
+    "40 NAGAO",
+    "29 MORITA",
+};
+static int current_text_index = 0;
 
 // HSV→RGBは以前と同様
 static rgb_t hsv_to_rgb(float h, float s, float v) {
@@ -85,7 +117,13 @@ static void generate_blue_fire_palette() {
 
 void reset_light_mode_blue_fire() {
     generate_blue_fire_palette();
+    
+    // カウンターとアニメーション状態をリセット
     frame_counter = 0;
+    animation_counter = 0;
+    is_animating = false;
+    current_text_index = 0;
+    completed_one_cycle = false; // 周回フラグもリセット
 
     for (int y = 0; y < FIRE_HEIGHT; y++) {
         for (int x = 0; x < FIRE_WIDTH; x++) {
@@ -141,24 +179,91 @@ static void draw_heat_to_canvas() {
     }
 }
 
-// テキストを描画する関数
+// スクロールアニメーション付きでテキストを描画する関数
 static void draw_text_overlay() {
-    // 「BLUE GIANTS」というテキストを中央に表示
-    const char* text = "BLUE GIANTS";
-    
-    // 1.5倍サイズのテキストを使用するため、縦方向の位置を調整
+    // 縦方向の位置を調整
     int y_pos = (FIRE_HEIGHT - get_font_5x7()->height * 3 / 2) / 2 - 2;
     
     // 純粋な白色を使用するために、パレットの最大値を使用
-    // パレットの最大値は純粋な白色(255,255,255)に設定済み
     uint8_t white_color_index = RAINBOW_PALETTE_SIZE - 1;
     
-    // 1.5倍サイズのテキストを中央に描画
-    draw_centered_text_to_canvas_1_5x(canvas, text, y_pos, white_color_index, get_font_5x7());
+    // アニメーション中かどうかで描画方法を変える
+    if (is_animating) {
+        // アニメーション中
+        const char* current_text = text_options[current_text_index];
+        const char* next_text = text_options[(current_text_index + 1) % TEXT_OPTIONS_LENGTH];
+        
+        // アニメーションの進行度（0.0～1.0）
+        float progress = (float)animation_counter / SCROLL_ANIMATION_FRAMES;
+        
+        // アニメーションを2段階に分ける
+        if (progress < 0.5) {
+            // 前半: 現在のテキストを左にスクロールアウト
+            // 0→0.5の進行度を0→1にスケーリング
+            float exit_progress = progress * 2.0;
+            int current_offset = -(int)(exit_progress * LED_TOTAL_WIDTH * 1.2);
+            
+            // 現在のテキストを描画（左にスクロールアウト）
+            draw_text_to_canvas_1_5x(canvas, current_text, current_offset, y_pos, white_color_index, get_font_5x7());
+        } else {
+            // 後半: 次のテキストを右からスクロールイン
+            // 0.5→1.0の進行度を0→1にスケーリング
+            float enter_progress = (progress - 0.5) * 2.0;
+            
+            // テキストの長さを取得して、完全に入った時に中央に表示されるよう調整
+            int text_width = 0;
+            for (int i = 0; next_text[i] != '\0'; i++) {
+                if (next_text[i] == ' ') {
+                    text_width += (get_font_5x7()->width * 3) / 4; // スペースは半分の幅
+                } else {
+                    text_width += (get_font_5x7()->width * 3) / 2 + 3; // 1.5倍の文字幅 + 間隔
+                }
+            }
+            if (text_width > 0) text_width -= 3; // 最後の文字の後の間隔は不要
+            
+            // 中央位置を計算
+            int center_x = (LED_TOTAL_WIDTH - text_width) / 2;
+            
+            // 右からスワイプして最終的に中央に停止するように位置を計算
+            int next_offset = center_x + (int)((1.0 - enter_progress) * LED_TOTAL_WIDTH);
+            
+            // 次のテキストを描画（右からスクロールイン）
+            draw_text_to_canvas_1_5x(canvas, next_text, next_offset, y_pos, white_color_index, get_font_5x7());
+        }
+        
+        // アニメーションカウンターを進める
+        animation_counter++;
+        
+        // アニメーション終了判定
+        if (animation_counter >= SCROLL_ANIMATION_FRAMES) {
+            is_animating = false;
+            animation_counter = 0;
+            
+            // 次のテキストインデックスを計算
+            int next_index = (current_text_index + 1) % TEXT_OPTIONS_LENGTH;
+            current_text_index = next_index;
+            
+            // 一周したかチェック（最初のテキストに戻ったら）
+            if (next_index == 0) {
+                completed_one_cycle = true;
+            }
+        }
+    } else {
+        // 通常時は現在のテキストを中央に表示
+        const char* text = text_options[current_text_index];
+        draw_centered_text_to_canvas_1_5x(canvas, text, y_pos, white_color_index, get_font_5x7());
+    }
 }
 
 void light_mode_blue_fire() {
     frame_counter++;
+    
+    // 3秒ごとにテキスト切り替えアニメーションを開始（1周したら停止）
+    if (!is_animating && !completed_one_cycle && frame_counter >= TEXT_SWITCH_FRAMES) {
+        is_animating = true;
+        animation_counter = 0;
+        frame_counter = 0;
+    }
     
     // 熱分布の更新
     update_heat();
